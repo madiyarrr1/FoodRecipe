@@ -1,7 +1,17 @@
-import { View,Text,TextInput,TouchableOpacity,Image,StyleSheet,} from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from "react-native";
 import React, { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {widthPercentageToDP as wp,heightPercentageToDP as hp,} from "react-native-responsive-screen";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 export default function RecipesFormScreen({ route, navigation }) {
   const { recipeToEdit, recipeIndex, onrecipeEdited } = route.params || {};
@@ -12,7 +22,37 @@ export default function RecipesFormScreen({ route, navigation }) {
   );
 
   const saverecipe = async () => {
- 
+    try {
+      // Создаем новый объект рецепта
+      const newRecipe = {
+        title,
+        image,
+        description,
+      };
+
+      // Получаем существующие рецепты из AsyncStorage
+      const existingRecipes = await AsyncStorage.getItem("customrecipes");
+      let recipes = existingRecipes ? JSON.parse(existingRecipes) : [];
+
+      if (recipeToEdit) {
+        // Если редактируем существующий рецепт
+        recipes[recipeIndex] = newRecipe; // Обновляем рецепт по индексу
+        if (onrecipeEdited) {
+          onrecipeEdited(); // Уведомляем родительский компонент об изменениях
+        }
+      } else {
+        // Если добавляем новый рецепт
+        recipes.push(newRecipe); // Добавляем новый рецепт в массив
+      }
+
+      // Сохраняем обновленный массив рецептов в AsyncStorage
+      await AsyncStorage.setItem("customrecipes", JSON.stringify(recipes));
+
+      // Возвращаемся на предыдущий экран
+      navigation.goBack();
+    } catch (error) {
+      console.error("Ошибка при сохранении рецепта:", error);
+    }
   };
 
   return (
@@ -58,12 +98,12 @@ const styles = StyleSheet.create({
     marginTop: hp(4),
     borderWidth: 1,
     borderColor: "#ddd",
-    padding: wp(.5),
+    padding: wp(0.5),
     marginVertical: hp(1),
   },
   image: {
     width: 300,
-    height:200,
+    height: 200,
     margin: wp(2),
   },
   imagePlaceholder: {
@@ -78,7 +118,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: "#4F75FF",
-    padding: wp(.5),
+    padding: wp(0.5),
     alignItems: "center",
     borderRadius: 5,
     marginTop: hp(2),

@@ -17,19 +17,19 @@ import {
 export default function FavoriteScreen() {
   const navigation = useNavigation();
 
-  // Assuming you have a similar structure for recipes in your Redux store
+  // Получаем данные о избранных рецептах из Redux
   const favoriteRecipes = useSelector((state) => state.favorites);
   const favoriteRecipesList = favoriteRecipes?.favoriterecipes || [];
-  console.log(favoriteRecipes.favoriterecipes);
-  console.log('favoriteRecipesList',favoriteRecipesList);
-  
-  
 
+  // Логируем данные для отладки
+  console.log('favoriteRecipesList:', favoriteRecipesList);
+
+  // Если список пуст, отображаем сообщение
   if (favoriteRecipesList.length === 0) {
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>No favorite recipes yet!</Text>
-        {/* add back button */}
+        {/* Кнопка для возврата */}
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={{
@@ -47,9 +47,10 @@ export default function FavoriteScreen() {
     );
   }
 
+  // Если рецепты есть, отображаем их список
   return (
     <>
-      {/* Heading */}
+      {/* Заголовок */}
       <View testID="FavoriteRecipes">
         <Text
           style={{ fontSize: hp(3.8), marginTop: hp(4), marginLeft: 20 }}
@@ -58,7 +59,25 @@ export default function FavoriteScreen() {
           My Favorite Recipes
         </Text>
       </View>
-    
+
+      {/* Список избранных рецептов */}
+      <FlatList
+        data={favoriteRecipesList}
+        keyExtractor={(item) => item.idFood.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.cardContainer}>
+            {/* Проверка на наличие изображения */}
+            <Image
+              source={{ uri: item.image || 'https://via.placeholder.com/150' }} // Заглушка, если изображения нет
+              style={styles.recipeImage}
+            />
+            <Text style={styles.recipeTitle}>{item.name || 'No Name'}</Text> {/* Заглушка для названия */}
+          </View>
+        )}
+        contentContainerStyle={styles.listContentContainer}
+      />
+
+      {/* Кнопка возврата */}
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={{
@@ -73,7 +92,6 @@ export default function FavoriteScreen() {
       >
         <Text style={{ color: "#fff" }}>Go back</Text>
       </TouchableOpacity>
-    
     </>
   );
 }
@@ -97,8 +115,8 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
     padding: wp(4),
     borderRadius: 10,
-    elevation: 3, // For Android shadow
-    shadowColor: "#000", // For iOS shadow
+    elevation: 3, // Для Android тени
+    shadowColor: "#000", // Для iOS тени
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
